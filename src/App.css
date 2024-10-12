@@ -36,3 +36,36 @@
     transform: rotate(360deg);
   }
 }
+
+#root{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 100vh;
+  flex-direction: column;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Three equal columns */
+  gap: 20px; /* Space between items */
+}
+
+.flex-container {
+  display: flex;
+  justify-content: space-between; /* Distribute space between items */
+  align-items: center; /* Align items vertically */
+}
+
+h1,h2,h3,h4,h5,h6{
+  font-family: "Markazi Text";
+}
+
+p{
+  font-family:'Courier New', Courier, monospace;
+}
+
+span{
+  font-family:'Courier New', Courier, monospace;
+
+}
