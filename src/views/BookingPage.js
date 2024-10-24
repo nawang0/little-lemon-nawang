@@ -1,7 +1,7 @@
 import React from 'react'
 import BookingForm from '../components/BookingForm'
 import Hero from '../components/heroBanner/Hero'
-import heroImage from '../assets/images/restauranfood.jpg'
+
 
 export default function BookingPage() {
 
