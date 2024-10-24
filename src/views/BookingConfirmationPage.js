@@ -1,7 +1,5 @@
 import React from 'react'
-import BookingForm from '../components/BookingForm'
 import Hero from '../components/heroBanner/Hero'
-import heroImage from '../assets/images/restauranfood.jpg'
 import './bookingConfirmation.css'
 import { useLocation } from 'react-router-dom';
 
