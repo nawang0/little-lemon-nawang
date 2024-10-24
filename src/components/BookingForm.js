@@ -1,69 +1,143 @@
-// BookingForm.js
-import React, { useState } from 'react';
+import React from 'react';
+import { Form, Input, Button, DatePicker, TimePicker, InputNumber, Checkbox } from 'antd';
+import { useForm, Controller } from 'react-hook-form';
+import { yupResolver } from '@hookform/resolvers/yup';
+import * as yup from 'yup';
+import moment from 'moment';
+import './bookingForm.css';
+import { useNavigate } from 'react-router-dom';
 
-const BookingForm = ({ availableTimes, dispatch, submitForm }) => {
-  const [formData, setFormData] = useState({
-    date: '',
-    time: '',
-    guests: 1,
-    occasion: '',
+// Validation schema with YUP
+const schema = yup.object().shape({
+  firstName: yup.string().required('First name is required'),
+  lastName: yup.string().required('Last name is required'),
+  email: yup.string().email('Invalid email').required('Email is required'),
+  phone: yup.string().matches(/^[0-9]+$/, 'Phone number is not valid').required('Phone number is required'),
+  date: yup.date().required('Date is required').nullable(),
+  time: yup.string().required('Time is required'),
+  people: yup.number().min(1, 'At least 1 person').max(10, 'Maximum 10 people').required('Amount of people is required'),
+  terms: yup.boolean().oneOf([true], 'Accepting terms is required'),
+});
+
+const BookingForm = () => {
+  const { handleSubmit, control, formState: { errors } } = useForm({
+    resolver: yupResolver(schema),
   });
 
-  const handleChange = (e) => {
-    const { id, value } = e.target;
-    setFormData({
-      ...formData,
-      [id]: value,
-    });
+  const navigate = useNavigate();
 
-    if (id === 'date') {
-      dispatch({ type: 'UPDATE_TIMES', payload: value });
-    }
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    submitForm(formData);  // Call submitForm with the form data
+  const onSubmit = (data) => {
+    console.log('Form Data:', data);
+    // Submit API logic goes here
+    // Navigate to confirmation page
+    navigate('/reservation-confirmation', { state: { firstName: data.firstName } });
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'grid', maxWidth: '200px', gap: '20px' }}>
-      <label htmlFor="res-date">Choose date</label>
-      <input
-        type="date"
-        id="date"
-        value={formData.date}
-        onChange={handleChange}
-      />
+    <Form className="booking-form" layout="vertical" onFinish={handleSubmit(onSubmit)}>
+      <h2>Personal Information</h2>
 
-      <label htmlFor="res-time">Choose time</label>
-      <select id="time" value={formData.time} onChange={handleChange}>
-        {availableTimes.map((time, index) => (
-          <option key={index} value={time}>
-            {time}
-          </option>
-        ))}
-      </select>
+      {/* First Name */}
+      <Form.Item label="First Name" validateStatus={errors.firstName ? 'error' : ''} help={errors.firstName?.message}>
+        <Controller
+          name="firstName"
+          control={control}
+          defaultValue=""
+          render={({ field }) => <Input {...field} />}
+        />
+      </Form.Item>
 
-      <label htmlFor="guests">Number of guests</label>
-      <input
-        type="number"
-        id="guests"
-        value={formData.guests}
-        onChange={handleChange}
-        min="1"
-        max="10"
-        placeholder="1"
-      />
+      {/* Last Name */}
+      <Form.Item label="Last Name" validateStatus={errors.lastName ? 'error' : ''} help={errors.lastName?.message}>
+        <Controller
+          name="lastName"
+          control={control}
+          defaultValue=""
+          render={({ field }) => <Input {...field} />}
+        />
+      </Form.Item>
 
-      <label htmlFor="occasion">Occasion</label>
-      <select id="occasion" value={formData.occasion} onChange={handleChange}>
-        <option value="Birthday">Birthday</option>
-        <option value="Anniversary">Anniversary</option>
-      </select>
+      {/* Email */}
+      <Form.Item label="Email" validateStatus={errors.email ? 'error' : ''} help={errors.email?.message}>
+        <Controller
+          name="email"
+          control={control}
+          defaultValue=""
+          render={({ field }) => <Input {...field} />}
+        />
+      </Form.Item>
 
-      <input type="submit" value="Make Your reservation" />
-    </form>
+      {/* Phone */}
+      <Form.Item label="Phone Number" validateStatus={errors.phone ? 'error' : ''} help={errors.phone?.message}>
+        <Controller
+          name="phone"
+          control={control}
+          defaultValue=""
+          render={({ field }) => <Input {...field} />}
+        />
+      </Form.Item>
+
+      <h2>Booking Details</h2>
+
+      {/* Date */}
+      <Form.Item label="Reservation Date" validateStatus={errors.date ? 'error' : ''} help={errors.date?.message}>
+        <Controller
+          name="date"
+          control={control}
+          defaultValue={null}
+          render={({ field }) => (
+            <DatePicker
+              {...field}
+              format="YYYY-MM-DD"
+              disabledDate={(current) => current && current < moment().endOf('day')}
+            />
+          )}
+        />
+      </Form.Item>
+
+      {/* Time */}
+      <Form.Item label="Reservation Time" validateStatus={errors.time ? 'error' : ''} help={errors.time?.message}>
+        <Controller
+          name="time"
+          control={control}
+          defaultValue={null}
+          render={({ field }) => (
+            <TimePicker {...field} format="HH:mm" />
+          )}
+        />
+      </Form.Item>
+
+      {/* Amount of People */}
+      <Form.Item label="Amount of People" validateStatus={errors.people ? 'error' : ''} help={errors.people?.message}>
+        <Controller
+          name="people"
+          control={control}
+          defaultValue={1}
+          render={({ field }) => (
+            <InputNumber {...field} min={1} max={10} />
+          )}
+        />
+      </Form.Item>
+
+      {/* Terms and Conditions */}
+      <Form.Item validateStatus={errors.terms ? 'error' : ''} help={errors.terms?.message}>
+        <Controller
+          name="terms"
+          control={control}
+          defaultValue={false}
+          render={({ field }) => (
+            <Checkbox {...field}>
+              I accept the terms and conditions
+            </Checkbox>
+          )}
+        />
+      </Form.Item>
+
+      {/* Submit Button */}
+      <Form.Item>
+        <Button type="primary" htmlType="submit">Submit</Button>
+      </Form.Item>
+    </Form>
   );
 };
 
